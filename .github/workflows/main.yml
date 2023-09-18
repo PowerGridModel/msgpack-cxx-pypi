@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2022 Contributors to the Power Grid Model project <dynamic.grid.calculation@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: Upload msgpack-cxx to PyPI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+      TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download msgpack-cxx
+      run: brew install msgpack-cxx
+
+    - name: Build msgpack-cxx
+      run:
+        ls /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/
