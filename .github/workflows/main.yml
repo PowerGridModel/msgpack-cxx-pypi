@@ -23,13 +23,27 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        architecture: x64
+
     - name: Enable brew
-      run: |
-        echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+      run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
 
     - name: Download msgpack-cxx
       run: brew install msgpack-cxx
 
+    - name: Get latest version
+      run: brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//'
+
+    # - name: Get PyPI version
+    #   run: |
+    #     python3 -m pip install yolk3k
+    #     yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//'
+
     - name: Build msgpack-cxx
+      if: 
       run:
         ls /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/
