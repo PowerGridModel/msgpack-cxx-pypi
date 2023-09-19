@@ -84,10 +84,15 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: msgpack-cxx
-          path: msgpack-cxx.tar.gz
+          path: msgpack-cxx-archive
+
+      - name: Show contents
+        run: |
+          ls -ahl msgpack-cxx-archive
+          ls -ahl msgpack-cxx-archive/msgpack-cxx.tar.gz
 
       - name: Extract msgpack-cxx tarball
-        run: tar -xzvf msgpack-cxx.tar.gz msgpack-cxx
+        run: tar -xzvf msgpack-cxx-archive/msgpack-cxx.tar.gz msgpack-cxx
 
       - name: Install dependencies
         run: pip install requests build
