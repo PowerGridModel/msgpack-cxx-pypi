@@ -87,7 +87,9 @@ jobs:
           path: msgpack-cxx-archive
 
       - name: Extract msgpack-cxx tarball
-        run: tar -xzvf msgpack-cxx-archive/msgpack-cxx.tar.gz -C msgpack-cxx
+        run: |
+          mkdir -p msgpack-cxx
+          tar -xzvf msgpack-cxx-archive/msgpack-cxx.tar.gz -C msgpack-cxx
 
       - name: Show contents
         run: ls -ahl msgpack-cxx
