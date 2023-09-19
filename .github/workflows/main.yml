@@ -12,13 +12,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload:
+
+  get-versions:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     env:
       TWINE_USERNAME: ${{ secrets.PYPI_USER }}
       TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
+    outputs:
+      current_version: ${{ steps.versions.outputs.current }}
+      latest_version: ${{ steps.versions.outputs.latest }}
 
     steps:
     - uses: actions/checkout@v4
@@ -26,8 +30,10 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
-        architecture: x64
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: python3 -m pip install yolk3k
 
     - name: Enable brew
       run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
@@ -35,15 +41,65 @@ jobs:
     - name: Download msgpack-cxx
       run: brew install msgpack-cxx
 
-    - name: Get latest version
-      run: brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//'
+    - name: Get latest versions
+      id: versions
+      run: |
+        echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
+        # echo "current=$(yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> GITHUB_OUTPUT
+        echo "current=0.x.y" >> GITHUB_OUTPUT
 
-    # - name: Get PyPI version
-    #   run: |
-    #     python3 -m pip install yolk3k
-    #     yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//'
+    - name: List versions
+      run: |
+        # echo "current=${{ steps.versions.outputs.current }}"
+        echo "latest=${{ steps.versions.outputs.latest }}"
 
-    - name: Build msgpack-cxx
-      if: 
+    - name: Repackage msgpack-cxx
+      if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
+      working-directory: /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/
       run:
-        ls /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/
+        tar -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/ .
+
+    - name: Keep version file
+      uses: actions/upload-artifact@v3
+      with:
+        name: msgpack-cxx.tar.gz
+        path: msgpack-cxx.tar.gz
+
+    # - name: Keep version file
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: version
+    #     path: PYPI_VERSION
+
+  acquire-python-version-build-sdist:
+    name: Build sdist and set version
+    needs: get-versions
+    if: ((${{ needs.get-versions.outputs.current_version }} != ${{ needs.get-versions.outputs.latest_version }}))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Set PyPI Version
+        run: |
+          echo "new_version=${{needs.get-versions.outputs.latest_version}}"
+          # pip install requests build
+          # python set_pypi_version.py
+
+      # - name: Build SDist
+      #   run:  python -m build --sdist --outdir wheelhouse .
+
+      # - name: Keep version file
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: version
+      #     path: PYPI_VERSION
+
+      # - name: Keep SDist
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: wheelhouse
+      #     path: ./wheelhouse/*.tar.gz
