@@ -57,11 +57,16 @@ jobs:
     - name: Download LICENSE_1_0.txt again because Brew does not package it
       run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/LICENSE_1_0.txt
 
+    - name: Repackage msgpack-cxx
+      if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
+      run:
+        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/ .
+
     - name: Keep the msgpack-cxx tarball
       uses: actions/upload-artifact@v3
       with:
-        name: msgpack-cxx.tar.gz
-        path: /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/*
+        name: msgpack-cxx
+        path: msgpack-cxx.tar.gz
 
   acquire-python-version-build-sdist:
     name: Build sdist and set version
@@ -77,11 +82,11 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: msgpack-cxx.tar.gz
-          path: msgpack-cxx
+          name: msgpack-cxx
+          path: msgpack-cxx-archive
 
       - name: Extract msgpack-cxx tarball
-        run: tar -xzvf msgpack-cxx.tar.gz msgpack-cxx
+        run: tar -xzvf msgpack-cxx-archive/msgpack-cxx.tar.gz msgpack-cxx
 
       - name: Install dependencies
         run: pip install requests build
