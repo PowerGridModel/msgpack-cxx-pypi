@@ -14,6 +14,7 @@ on:
 jobs:
 
   get-versions:
+    name: "Get latest versions in Brew and PyPI"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -56,16 +57,11 @@ jobs:
     - name: Download LICENSE_1_0.txt again because Brew does not package it
       run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/LICENSE_1_0.txt
 
-    - name: Repackage msgpack-cxx
-      if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
-      run:
-        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/ .
-
     - name: Keep the msgpack-cxx tarball
       uses: actions/upload-artifact@v3
       with:
         name: msgpack-cxx.tar.gz
-        path: msgpack-cxx.tar.gz
+        path: /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/*
 
   acquire-python-version-build-sdist:
     name: Build sdist and set version
@@ -82,7 +78,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: msgpack-cxx.tar.gz
-          path: msgpack-cxx.tar.gz
+          path: msgpack-cxx
 
       - name: Extract msgpack-cxx tarball
         run: tar -xzvf msgpack-cxx.tar.gz msgpack-cxx
