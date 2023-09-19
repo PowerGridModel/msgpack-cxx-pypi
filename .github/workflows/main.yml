@@ -18,9 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    env:
-      TWINE_USERNAME: ${{ secrets.PYPI_USER }}
-      TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
     outputs:
       current_version: ${{ steps.versions.outputs.current }}
       latest_version: ${{ steps.versions.outputs.latest }}
@@ -47,11 +44,11 @@ jobs:
       run: |
         echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
         # echo "current=$(yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> GITHUB_OUTPUT
-        echo "current=0.x.y" >> GITHUB_OUTPUT
+        echo "current=6.2.0-rc" >> GITHUB_OUTPUT
 
     - name: List versions
       run: |
-        # echo "current=${{ steps.versions.outputs.current }}"
+        echo "current=${{ steps.versions.outputs.current }}"
         echo "latest=${{ steps.versions.outputs.latest }}"
 
     - name: Download LICENSE_1_0.txt again because Brew does not package it
@@ -60,7 +57,7 @@ jobs:
     - name: Repackage msgpack-cxx
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
       run:
-        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/ *
+        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.latest }}/ *
 
     - name: Keep the msgpack-cxx tarball
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
@@ -69,7 +66,7 @@ jobs:
         name: msgpack-cxx
         path: msgpack-cxx.tar.gz
 
-  acquire-python-version-build-sdist:
+  build-sdist:
     name: Build sdist and set version
     needs: get-versions
     if: ((${{ needs.get-versions.outputs.current_version }} != ${{ needs.get-versions.outputs.latest_version }}))
@@ -115,3 +112,49 @@ jobs:
         with:
           name: wheelhouse
           path: ./wheelhouse/*.tar.gz
+
+  publish-wheels:
+    name: "Publish wheels"
+    needs: [build-sdist]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+      TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          architecture: x64
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheelhouse
+          path: wheelhouse
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: version
+          path: .
+
+      - name: List assets
+        run: ls ./wheelhouse/ -al
+
+      - name: Get tag
+        id: tag
+        run: echo "tag=$(cat PYPI_VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Display tag
+        run: echo "${{ steps.tag.outputs.tag }}"
+
+      - name: Upload wheels
+        if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
+        run: |
+          pip install twine
+          echo "Publish to PyPI..."
+          twine upload --verbose wheelhouse/*
