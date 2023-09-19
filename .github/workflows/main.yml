@@ -5,6 +5,8 @@
 name: Upload msgpack-cxx to PyPI
 
 on:
+  schedule:
+    - cron: '0 0 * * *'  # every day at midnight
   push:
     branches:
       - main
