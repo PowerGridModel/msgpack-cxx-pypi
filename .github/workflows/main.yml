@@ -99,7 +99,7 @@ jobs:
           echo "${{needs.get-versions.outputs.latest_version}}" >> PYPI_VERSION
 
       - name: Build SDist
-        run:  python -m build --sdist --outdir wheelhouse .
+        run:  python -m build --sdist --outdir wheelhouse msgpack-cxx
 
       - name: Keep version file
         uses: actions/upload-artifact@v3
