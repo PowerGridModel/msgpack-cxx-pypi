@@ -2,8 +2,9 @@
 wheelhouse/
 
 # generated package contents
-msgpack-cxx/
-PYPI_VERSION
+msgpack-cxx/*
+!msgpack-cxx/pyproject.toml
+!msgpack-cxx/setup.py
 
 # environment
 [.v]env/
