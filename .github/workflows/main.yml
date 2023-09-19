@@ -55,7 +55,6 @@ jobs:
 
     - name: Repackage msgpack-cxx
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
-      working-directory: /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/
       run:
         tar -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/ .
 
