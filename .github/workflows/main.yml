@@ -85,7 +85,7 @@ jobs:
           path: msgpack-cxx.tar.gz
 
       - name: Extract msgpack-cxx tarball
-        run: tar -xzvf file.tar.gz msgpack-cxx
+        run: tar -xzvf msgpack-cxx.tar.gz msgpack-cxx
 
       - name: Install dependencies
         run: pip install requests build
