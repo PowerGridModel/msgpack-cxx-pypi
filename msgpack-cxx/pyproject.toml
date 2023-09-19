@@ -19,14 +19,15 @@ classifiers = [
     "Programming Language :: C++",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
     # We only repackage and do not claim ownership over the msgpack-cxx package.
     # The original license is listed in https://github.com/msgpack/msgpack-c/blob/cpp_master/COPYING
     "License :: OSI Approved :: Boost Software License 1.0 (BSL-1.0)",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS",
-    "Topic :: Scientific/Engineering :: Software Engineering",
+    "Topic :: File Formats",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries",
 ]
 dependencies = []
 dynamic = [
