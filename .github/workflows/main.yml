@@ -56,19 +56,16 @@ jobs:
     - name: Repackage msgpack-cxx
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
       run:
-        tar -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/ .
+        tar -czvf msgpack-cxx.tar.gz \
+          --exclude=.brew/* \
+          --exclude=INSTALL_RECEIPT
+          -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/ .
 
-    - name: Keep version file
+    - name: Keep the msgpack-cxx tarball
       uses: actions/upload-artifact@v3
       with:
         name: msgpack-cxx.tar.gz
         path: msgpack-cxx.tar.gz
-
-    # - name: Keep version file
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: version
-    #     path: PYPI_VERSION
 
   acquire-python-version-build-sdist:
     name: Build sdist and set version
