@@ -57,7 +57,7 @@ jobs:
     - name: Repackage msgpack-cxx
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
       run:
-        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.latest }}/ *
+        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.latest }}/ .
 
     - name: Keep the msgpack-cxx tarball
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
