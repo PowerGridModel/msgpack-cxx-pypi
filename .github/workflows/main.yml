@@ -44,7 +44,7 @@ jobs:
       run: |
         echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
         # echo "current=$(yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> GITHUB_OUTPUT
-        echo "current=6.2.0-rc" >> GITHUB_OUTPUT
+        echo "current=$(echo 6.1.0-rc)" >> GITHUB_OUTPUT
 
     - name: List versions
       run: |
@@ -96,7 +96,7 @@ jobs:
 
       - name: Set PyPI Version
         run: |
-          echo "${{needs.get-versions.outputs.latest_version}}" >> PYPI_VERSION
+          echo "${{needs.get-versions.outputs.latest_version}}" >> msgpack-cxx/PYPI_VERSION
 
       - name: Build SDist
         run:  python -m build --sdist --outdir wheelhouse msgpack-cxx
@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: version
-          path: PYPI_VERSION
+          path: msgpack-cxx/PYPI_VERSION
 
       - name: Keep SDist
         uses: actions/upload-artifact@v3
@@ -144,13 +144,6 @@ jobs:
 
       - name: List assets
         run: ls ./wheelhouse/ -al
-
-      - name: Get tag
-        id: tag
-        run: echo "tag=$(cat PYPI_VERSION)" >> $GITHUB_OUTPUT
-
-      - name: Display tag
-        run: echo "${{ steps.tag.outputs.tag }}"
 
       - name: Upload wheels
         if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
