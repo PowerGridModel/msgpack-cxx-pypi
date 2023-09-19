@@ -27,7 +27,6 @@ classifiers = [
     "Operating System :: MacOS",
     "Topic :: File Formats",
     "Topic :: Software Development :: Libraries",
-    "Topic :: Software Development :: Libraries",
 ]
 dependencies = []
 dynamic = [
