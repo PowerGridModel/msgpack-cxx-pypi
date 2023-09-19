@@ -55,7 +55,7 @@ jobs:
         echo "latest=${{ steps.versions.outputs.latest }}"
 
     - name: Download LICENSE_1_0.txt again because Brew does not package it
-      run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/LICENSE_1_0.txt
+      run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.latest }}/LICENSE_1_0.txt
 
     - name: Repackage msgpack-cxx
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
