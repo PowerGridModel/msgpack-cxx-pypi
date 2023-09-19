@@ -60,7 +60,7 @@ jobs:
     - name: Repackage msgpack-cxx
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
       run:
-        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/ .
+        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/ *
 
     - name: Keep the msgpack-cxx tarball
       if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
@@ -102,7 +102,7 @@ jobs:
           echo "${{needs.get-versions.outputs.latest_version}}" >> PYPI_VERSION
 
       - name: Build SDist
-        run:  python -m build --sdist --outdir wheelhouse msgpack-cxx
+        run:  python -m build --sdist --outdir wheelhouse .
 
       - name: Keep version file
         uses: actions/upload-artifact@v3

@@ -1,2 +1,9 @@
+# package
+wheelhouse/
+
+# generated package contents
 msgpack-cxx/
+PYPI_VERSION
+
+# environment
 [.v]env/

@@ -40,16 +40,6 @@ def generate_build_ext(pkg_dir: Path, pkg_name: str):
     return {"cmdclass": {"bdist_wheel": bdist_wheel_abi_none}}
 
 
-def set_version(pkg_dir: Path):
-    # if PYPI_VERSION does not exist, copy from VERSION
-    pypi_file = pkg_dir / "PYPI_VERSION"
-    if not pypi_file.exists():
-        with open(pkg_dir / "VERSION") as f:
-            version = f.read().strip().strip("\n")
-        with open(pypi_file, "w") as f:
-            f.write(version)
-
-
 def get_msgpack(pkg_dir: Path):
     if not pkg_dir.is_dir():
         raise NotImplementedError()
@@ -64,11 +54,10 @@ def prepare_pkg(setup_file: Path) -> dict:
 
     """
     print(f"Build wheel from {setup_file}")
-    pkg_dir = setup_file.parent
+    pkg_dir = setup_file.parent / "msgpack-cxx"
     # package description
     pkg_pip_name = "msgpack-cxx"
     pkg_name = pkg_pip_name.replace("-", "_")
-    set_version(pkg_dir)
     return generate_build_ext(pkg_dir=pkg_dir, pkg_name=pkg_name)
 
 
