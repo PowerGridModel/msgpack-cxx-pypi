@@ -13,7 +13,6 @@ build-backend = "setuptools.build_meta"
 name = "msgpack-cxx"
 authors = [{ name = "Alliander Dynamic Grid Calculation", email = "dynamic.grid.calculation@alliander.com" }]
 description = "Repackaging of msgpack-cxx distributed via PyPI"
-readme = "README"
 license = { text = "BSL-1.0" }
 classifiers = [
     "Programming Language :: C++",
