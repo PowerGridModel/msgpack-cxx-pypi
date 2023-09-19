@@ -63,6 +63,7 @@ jobs:
         tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.current }}/ .
 
     - name: Keep the msgpack-cxx tarball
+      if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
       uses: actions/upload-artifact@v3
       with:
         name: msgpack-cxx
@@ -83,10 +84,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: msgpack-cxx
-          path: msgpack-cxx-archive
+          path: msgpack-cxx.tar.gz
 
       - name: Extract msgpack-cxx tarball
-        run: tar -xzvf msgpack-cxx-archive/msgpack-cxx.tar.gz msgpack-cxx
+        run: tar -xzvf msgpack-cxx.tar.gz msgpack-cxx
 
       - name: Install dependencies
         run: pip install requests build
