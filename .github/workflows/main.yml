@@ -45,8 +45,7 @@ jobs:
       id: versions
       run: |
         echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
-        # echo "current=$(yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> GITHUB_OUTPUT
-        echo "current=$(echo 6.1.0-rc)" >> GITHUB_OUTPUT
+        echo "current=$(yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> GITHUB_OUTPUT
 
     - name: List versions
       run: |
