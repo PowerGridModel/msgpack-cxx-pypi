@@ -147,7 +147,7 @@ jobs:
         run: ls ./wheelhouse/ -al
 
       - name: Upload wheels
-        # if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
+        if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
         run: |
           pip install twine
           echo "Publish to PyPI..."
