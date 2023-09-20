@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from pathlib import Path
+from importlib_resources import files
+
 
 def get_include() -> Path:
-    return Path(__file__).parent / "include"
+    return files("msgpack_cxx.include")

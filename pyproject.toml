@@ -28,7 +28,9 @@ classifiers = [
     "Topic :: File Formats",
     "Topic :: Software Development :: Libraries",
 ]
-dependencies = []
+dependencies = [
+    "importlib-resources"
+]
 dynamic = [
     "version"
 ]
