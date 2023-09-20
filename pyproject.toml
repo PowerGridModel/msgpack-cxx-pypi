@@ -13,6 +13,7 @@ build-backend = "setuptools.build_meta"
 name = "msgpack-cxx"
 authors = [{ name = "Alliander Dynamic Grid Calculation", email = "dynamic.grid.calculation@alliander.com" }]
 description = "Repackaging of msgpack-cxx distributed via PyPI"
+readme = "README.md"
 license = { text = "BSL-1.0" }
 classifiers = [
     "Programming Language :: C++",
@@ -32,24 +33,17 @@ dynamic = [
     "version"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pre-commit",
-]
-
 [project.urls]
 Home-page = "https://msgpack.org/"
 GitHub = "https://github.com/msgpack/msgpack-c/tree/cpp_master"
 Documentation = "https://github.com/msgpack/msgpack-c/tree/cpp_master"
-Mailing-list = "https://lists.lfenergy.org/g/powergridmodel"
 
 [tool.setuptools.packages.find]
-where = ['']
+where = ["src"]
+namespaces = false
 
 [tool.setuptools.dynamic]
 version = {file = "PYPI_VERSION"}
 
-# CI build options
-[tool.cibuildwheel]
-build-frontend = "build"
-build-verbosity = 1
+[tool.setuptools.package-data]
+msgpack_cxx = ["include/**/*.hpp"]
