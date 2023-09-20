@@ -33,6 +33,11 @@ dynamic = [
     "version"
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
 [project.urls]
 Home-page = "https://msgpack.org/"
 GitHub = "https://github.com/msgpack/msgpack-c/tree/cpp_master"
