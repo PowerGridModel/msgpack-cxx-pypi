@@ -7,4 +7,5 @@ msgpack-cxx/*
 !msgpack-cxx/setup.py
 
 # environment
-[.v]env/
+venv/
+.venv/
