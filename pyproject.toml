@@ -45,7 +45,7 @@ Documentation = "https://github.com/msgpack/msgpack-c/tree/cpp_master"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-namespaces = false
+namespaces = true
 
 [tool.setuptools.dynamic]
 version = {file = "PYPI_VERSION"}
