@@ -45,7 +45,7 @@ jobs:
       run: echo "latest=${{ steps.version.outputs.latest }}"
 
     - name: Get the msgpack-cxx contents
-      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/* src/msgpack_cxx/include
+      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/include/* src/msgpack_cxx/include
 
     - name: Set PyPI Version
       run: echo "${{ steps.version.outputs.latest }}" >> PYPI_VERSION
