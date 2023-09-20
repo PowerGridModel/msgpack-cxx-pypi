@@ -1,18 +1,13 @@
-# SPDX-FileCopyrightText: 2022 Contributors to the Power Grid Model project <dynamic.grid.calculation@alliander.com>
-#
-# SPDX-License-Identifier: MPL-2.0
-
 name: Upload msgpack-cxx to PyPI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
 
 jobs:
-  upload:
+
+  get-versions:
+    name: "Upload latest msgpack-cxx version to PyPI"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,9 +18,58 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        architecture: x64
+
+    - name: Install dependencies
+      run: pip install build
+
+    - name: Enable brew
+      run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+
     - name: Download msgpack-cxx
       run: brew install msgpack-cxx
 
-    - name: Build msgpack-cxx
-      run:
-        ls /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/6.1.0/
+    - name: Get latest version
+      id: version
+      run: echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
+
+    - name: List version
+      run: echo "latest=${{ steps.version.outputs.latest }}"
+
+    - name: Get the msgpack-cxx contents
+      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/include/* src/msgpack_cxx/include
+
+    - name: Set PyPI Version
+      run: echo "${{ steps.version.outputs.latest }}" >> PYPI_VERSION
+
+    - name: Show contents
+      run: ls -ahl src/msgpack_cxx/include
+
+    - name: Build wheel
+      run:  python -m build --wheel --outdir wheelhouse .
+    
+    - name: Test wheel
+      run: |
+        pip install wheelhouse/*
+        pip install pytest
+        pytest
+
+    - name: Keep Wheel file
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheelhouse
+        path: ./wheelhouse/*.whl
+
+    - name: List assets
+      run: ls ./wheelhouse/ -al
+
+    - name: Upload wheels
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        pip install twine
+        echo "Publish to PyPI..."
+        twine upload --verbose wheelhouse/*
