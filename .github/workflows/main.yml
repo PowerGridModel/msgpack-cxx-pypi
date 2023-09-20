@@ -5,11 +5,6 @@
 name: Upload msgpack-cxx to PyPI
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # every day at midnight
-  push:
-    branches:
-      - main
   pull_request:
   workflow_dispatch:
 
@@ -20,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      current_version: ${{ steps.versions.outputs.current }}
-      latest_version: ${{ steps.versions.outputs.latest }}
+    env:
+      TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+      TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
 
     steps:
     - uses: actions/checkout@v4
@@ -31,9 +26,10 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
+        architecture: x64
 
     - name: Install dependencies
-      run: python3 -m pip install yolk3k
+      run: pip install requests build
 
     - name: Enable brew
       run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
@@ -41,114 +37,43 @@ jobs:
     - name: Download msgpack-cxx
       run: brew install msgpack-cxx
 
-    - name: Get latest versions
-      id: versions
-      run: |
-        echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
-        echo "current=$(yolk -V msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> GITHUB_OUTPUT
+    - name: Get latest version
+      id: version
+      run: echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
 
     - name: List versions
-      run: |
-        echo "current=${{ steps.versions.outputs.current }}"
-        echo "latest=${{ steps.versions.outputs.latest }}"
+      run: echo "latest=${{ steps.version.outputs.latest }}"
 
     - name: Download LICENSE_1_0.txt again because Brew does not package it
-      run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.latest }}/LICENSE_1_0.txt
+      run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/LICENSE_1_0.txt
 
-    - name: Repackage msgpack-cxx
-      if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
-      run:
-        tar --exclude=".brew/*" --exclude="INSTALL_RECEIPT.json" -czvf msgpack-cxx.tar.gz -C /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.versions.outputs.latest }}/ .
+    - name: Set PyPI Version
+      run: echo "${{ steps.version.outputs.latest }}" >> msgpack-cxx/PYPI_VERSION
 
-    - name: Keep the msgpack-cxx tarball
-      if: ((${{ steps.versions.outputs.current }} != ${{ steps.versions.outputs.latest }}))
+    - name: Show contents
+      run: ls -ahl msgpack-cxx
+
+    - name: Build SDist
+      run:  python -m build --sdist --outdir wheelhouse msgpack-cxx
+
+    - name: Keep version file
       uses: actions/upload-artifact@v3
       with:
-        name: msgpack-cxx
-        path: msgpack-cxx.tar.gz
+        name: version
+        path: msgpack-cxx/PYPI_VERSION
 
-  build-sdist:
-    name: Build sdist and set version
-    needs: get-versions
-    if: ((${{ needs.get-versions.outputs.current_version }} != ${{ needs.get-versions.outputs.latest_version }}))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    - name: Keep SDist
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheelhouse
+        path: ./wheelhouse/*.tar.gz
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
+    - name: List assets
+      run: ls ./wheelhouse/ -al
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: msgpack-cxx
-          path: msgpack-cxx-archive
-
-      - name: Extract msgpack-cxx tarball
-        run: |
-          mkdir -p msgpack-cxx
-          tar -xzvf msgpack-cxx-archive/msgpack-cxx.tar.gz -C msgpack-cxx
-
-      - name: Show contents
-        run: ls -ahl msgpack-cxx
-
-      - name: Install dependencies
-        run: pip install requests build
-
-      - name: Set PyPI Version
-        run: |
-          echo "${{needs.get-versions.outputs.latest_version}}" >> msgpack-cxx/PYPI_VERSION
-
-      - name: Build SDist
-        run:  python -m build --sdist --outdir wheelhouse msgpack-cxx
-
-      - name: Keep version file
-        uses: actions/upload-artifact@v3
-        with:
-          name: version
-          path: msgpack-cxx/PYPI_VERSION
-
-      - name: Keep SDist
-        uses: actions/upload-artifact@v3
-        with:
-          name: wheelhouse
-          path: ./wheelhouse/*.tar.gz
-
-  publish-wheels:
-    name: "Publish wheels"
-    needs: [build-sdist]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      TWINE_USERNAME: ${{ secrets.PYPI_USER }}
-      TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          architecture: x64
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: wheelhouse
-          path: wheelhouse
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: version
-          path: .
-
-      - name: List assets
-        run: ls ./wheelhouse/ -al
-
-      - name: Upload wheels
-        if: (github.event_name == 'push') || (github.event_name == 'workflow_dispatch')
-        run: |
-          pip install twine
-          echo "Publish to PyPI..."
-          twine upload --verbose wheelhouse/*
+    - name: Upload wheels
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        pip install twine
+        echo "Publish to PyPI..."
+        twine upload --verbose wheelhouse/*
