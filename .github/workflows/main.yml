@@ -53,8 +53,8 @@ jobs:
     - name: Show contents
       run: ls -ahl src/msgpack_cxx/include
 
-    - name: Build SDist
-      run:  python -m build --bdist --outdir wheelhouse .
+    - name: Build wheel
+      run:  python -m build --wheel --outdir wheelhouse .
 
     - name: Keep Wheel file
       uses: actions/upload-artifact@v3
