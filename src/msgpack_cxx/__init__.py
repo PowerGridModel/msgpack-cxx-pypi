@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from pathlib import Path
+
 from importlib_resources import files
 
 

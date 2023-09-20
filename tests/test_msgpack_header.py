@@ -3,8 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
-from msgpack_cxx import get_include
 from pathlib import Path
+
+from msgpack_cxx import get_include
 
 
 def test_header():
