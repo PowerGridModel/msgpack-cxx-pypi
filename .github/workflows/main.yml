@@ -11,7 +11,7 @@ on:
 jobs:
 
   get-versions:
-    name: "Get latest versions in Brew and PyPI"
+    name: "Upload latest msgpack-cxx version to PyPI"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -41,8 +41,11 @@ jobs:
       id: version
       run: echo "latest=$(brew list --version msgpack-cxx | sed -e 's/msgpack-cxx\s//')" >> $GITHUB_OUTPUT
 
-    - name: List versions
+    - name: List version
       run: echo "latest=${{ steps.version.outputs.latest }}"
+
+    - name: Get the msgpack-cxx contents
+      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx .
 
     - name: Download LICENSE_1_0.txt again because Brew does not package it
       run: wget http://www.boost.org/LICENSE_1_0.txt -o /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/LICENSE_1_0.txt
