@@ -60,7 +60,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: wheelhouse
-        path: ./wheelhouse/*.tar.gz
+        path: ./wheelhouse/*.whl
 
     - name: List assets
       run: ls ./wheelhouse/ -al
