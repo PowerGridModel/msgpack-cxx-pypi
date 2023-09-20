@@ -29,7 +29,7 @@ jobs:
         architecture: x64
 
     - name: Install dependencies
-      run: pip install requests build
+      run: pip install build
 
     - name: Enable brew
       run: echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
@@ -45,27 +45,18 @@ jobs:
       run: echo "latest=${{ steps.version.outputs.latest }}"
 
     - name: Get the msgpack-cxx contents
-      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/* msgpack-cxx
-
-    - name: Download LICENSE_1_0.txt again because Brew does not package it
-      run: wget http://www.boost.org/LICENSE_1_0.txt -o msgpack-cxx/LICENSE_1_0.txt
+      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/* src/msgpack_cxx/include
 
     - name: Set PyPI Version
-      run: echo "${{ steps.version.outputs.latest }}" >> msgpack-cxx/PYPI_VERSION
+      run: echo "${{ steps.version.outputs.latest }}" >> PYPI_VERSION
 
     - name: Show contents
-      run: ls -ahl msgpack-cxx
+      run: ls -ahl src/msgpack_cxx/include
 
     - name: Build SDist
-      run:  python -m build --sdist --outdir wheelhouse msgpack-cxx
+      run:  python -m build --bdist --outdir wheelhouse .
 
-    - name: Keep version file
-      uses: actions/upload-artifact@v3
-      with:
-        name: version
-        path: msgpack-cxx/PYPI_VERSION
-
-    - name: Keep SDist
+    - name: Keep Wheel file
       uses: actions/upload-artifact@v3
       with:
         name: wheelhouse

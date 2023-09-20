@@ -46,4 +46,4 @@ namespaces = false
 version = {file = "PYPI_VERSION"}
 
 [tool.setuptools.package-data]
-msgpack_cxx = ["include/**/*.hpp"]
+msgpack_cxx = ["include/**/*"]
