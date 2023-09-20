@@ -45,7 +45,7 @@ jobs:
       run: echo "latest=${{ steps.version.outputs.latest }}"
 
     - name: Get the msgpack-cxx contents
-      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }} msgpack-cxx
+      run: cp -r /home/linuxbrew/.linuxbrew/Cellar/msgpack-cxx/${{ steps.version.outputs.latest }}/* msgpack-cxx
 
     - name: Download LICENSE_1_0.txt again because Brew does not package it
       run: wget http://www.boost.org/LICENSE_1_0.txt -o msgpack-cxx/LICENSE_1_0.txt
