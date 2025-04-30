@@ -10,10 +10,8 @@ jobs:
     name: "Upload latest msgpack-cxx version to PyPI"
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-    env:
-      TWINE_USERNAME: ${{ secrets.PYPI_USER }}
-      TWINE_PASSWORD: ${{ secrets.PYPI_PASS }}
+      contents: write
+      id-token: write  # Required for Trusted Publishing
 
     steps:
     - uses: actions/checkout@v4
@@ -21,7 +19,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.11"
+        python-version: "3.13"
         architecture: x64
 
     - name: Install dependencies
@@ -67,9 +65,17 @@ jobs:
     - name: List assets
       run: ls ./wheelhouse/ -al
 
-    - name: Upload wheels
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        pip install twine
-        echo "Publish to PyPI..."
-        twine upload --verbose wheelhouse/*
+    - name: Upload assets to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        # To test, use the TestPyPI:
+        repository-url: https://test.pypi.org/legacy/
+        # You must also create an account and project on TestPyPI,
+        # as well as set the trusted-publisher in the project settings:
+        # https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+        # To publish to the official PyPI repository, just keep
+        # repository-url commented out.
+        packages-dir: wheelhouse
+        skip-existing: true
+        print-hash: true
+        verbose: true
